@@ -34,19 +34,6 @@ pipeline {
             }
         }
 
-        stage('Push to Docker Hub') {
-            steps {
-                echo 'Pushing Docker image to Docker Hub'
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-cred', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
-                    sh '''
-                    echo "${PASS}" | docker login --username "${USER}" --password-stdin
-                    docker tag flask-project ${USER}/flask-project:latest
-                    docker push ${USER}/flask-project:latest
-                    '''
-                }
-            }
-        }
-
 
         stage('Update TRIVY DB') {
             steps {
@@ -59,6 +46,19 @@ pipeline {
             steps {
                 echo 'Running TRIVY security scan'
                 sh 'trivy image --skip-db-update flask-project:latest'
+            }
+        }
+
+        stage('Push to Docker Hub') {
+            steps {
+                echo 'Pushing Docker image to Docker Hub'
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-cred', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
+                    sh '''
+                    echo "${PASS}" | docker login --username "${USER}" --password-stdin
+                    docker tag flask-project ${USER}/flask-project:latest
+                    docker push ${USER}/flask-project:latest
+                    '''
+                }
             }
         }
 
