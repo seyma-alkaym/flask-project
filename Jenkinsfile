@@ -12,12 +12,12 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withCredentials([string(credentialsId: 'SONAR_TOKEN', variable: 'SONAR_TOKEN')]) {
-                sh '''
+                    sh '''
                     mvn sonar:sonar \
                     -Dsonar.projectKey=flask-project \
-                    -Dsonar.host.url='http://localhost:9000' \
-                    -Dsonar.login=credentials('SONAR_TOKEN')
-                '''
+                    -Dsonar.host.url=http://localhost:9000 \
+                    -Dsonar.login=$SONAR_TOKEN
+                    '''
                 }
             }
         }
