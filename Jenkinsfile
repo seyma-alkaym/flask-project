@@ -71,7 +71,7 @@ pipeline {
                         chmod +x kubectl
                     fi
                     export KUBECONFIG=$(mktemp)
-                    ./kubectl config set-cluster minikube --server=https://172.20.201.241:8443 --insecure-skip-tls-verify=true
+                    ./kubectl config set-cluster minikube --server=https://172.31.234.40:8443 --insecure-skip-tls-verify=true
                     ./kubectl config set-credentials jenkins --token=${KUBE_TOKEN}
                     ./kubectl config set-context default --cluster=minikube --user=jenkins --namespace=default
                     ./kubectl config use-context default
