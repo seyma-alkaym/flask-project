@@ -50,7 +50,7 @@ pipeline {
         stage('TRIVY') {
             steps {
                 echo 'Running TRIVY security scan'
-                sh 'trivy image flask-project:latest'
+                sh 'trivy image --skip-update flask-project:latest'
             }
         }
 
