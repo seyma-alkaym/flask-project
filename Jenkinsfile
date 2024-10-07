@@ -13,11 +13,10 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'SONAR_TOKEN', variable: 'SONAR_TOKEN')]) {
                 sh '''
-                    sonar-scanner \
+                    mvn sonar:sonar \
                     -Dsonar.projectKey=flask-project \
-                    -Dsonar.sources=. \
-                    -Dsonar.host.url=http://localhost:9000 \
-                    -Dsonar.login=$SONAR_TOKEN
+                    -Dsonar.host.url='http://localhost:9000' \
+                    -Dsonar.login=credentials('SONAR_TOKEN')
                 '''
                 }
             }
