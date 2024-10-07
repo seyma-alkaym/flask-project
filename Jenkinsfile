@@ -47,10 +47,17 @@ pipeline {
             }
         }
 
-        stage('TRIVY') {
+        stage('Update TRIVY DB') {
+            steps {
+                echo 'Updating TRIVY vulnerability database'
+                sh 'trivy image flask-project:latest'
+            }
+        }
+
+        stage('TRIVY Security Scan') {
             steps {
                 echo 'Running TRIVY security scan'
-                sh 'trivy image --skip-update flask-project:latest'
+                sh 'trivy image flask-project:latest'
             }
         }
 
