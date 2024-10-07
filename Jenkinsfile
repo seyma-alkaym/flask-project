@@ -8,7 +8,6 @@ pipeline {
                 git url: 'https://github.com/seyma-alkaym/flask-project.git',  branch: 'main'
             }
         }
-
         stage('SonarQube Analysis') {
             steps {
                 sh """
@@ -19,14 +18,12 @@ pipeline {
                 """
             }
         }
-
         stage('Build Docker Image') {
             steps {
                 echo 'Building the image'
                 sh 'docker build -t flask-project .'
             }
         }
-
         stage('Push to Docker Hub') {
             steps {
                 echo 'Pushing to Docker Hub'
@@ -39,13 +36,11 @@ pipeline {
                 }
             }
         }
-
         stage("TRIVY") {
             steps {
                 sh "trivy image flask-project:latest"
             }
         }
-
         stage('Integrate Remote kubernetess with Jenkins') {
             steps {
                 withCredentials([string(credentialsId: 'SECRET_TOKEN', variable: 'KUBE_TOKEN')]) {
