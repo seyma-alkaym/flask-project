@@ -13,7 +13,7 @@ pipeline {
             steps {
                 sh """
                     mvn sonar:sonar \
-                    -Dsonar.projectKey=petclinic-java \
+                    -Dsonar.projectKey=flask-project \
                     -Dsonar.host.url='http://localhost:9000' \
                     -Dsonar.login=credentials('SONAR_TOKEN')
                 """
