@@ -13,6 +13,7 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'SONAR_TOKEN', variable: 'SONAR_TOKEN')]) {
                     sh '''
+                    export PATH=$PATH:/opt/sonar-scanner-6.2.1.4610-linux-x64/bin
                     echo $PATH
                     echo "Checking for sonar-scanner"
                     command -v sonar-scanner || { echo "sonar-scanner not found"; exit 1; }
