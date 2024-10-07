@@ -5,28 +5,33 @@ pipeline {
         stage('Git Cloning') {
             steps {
                 echo 'Cloning git repo'
-                git url: 'https://github.com/seyma-alkaym/flask-project.git',  branch: 'main'
+                git url: 'https://github.com/seyma-alkaym/flask-project.git', branch: 'main'
             }
         }
+
         stage('SonarQube Analysis') {
             steps {
+                echo 'Running SonarQube analysis'
                 sh """
-                    mvn sonar:sonar \
+                    sonar-scanner \
                     -Dsonar.projectKey=flask-project \
-                    -Dsonar.host.url='http://localhost:9000' \
-                    -Dsonar.login=credentials('SONAR_TOKEN')
+                    -Dsonar.sources=. \
+                    -Dsonar.host.url=http://localhost:9000 \
+                    -Dsonar.login=$(SONAR_TOKEN)
                 """
             }
         }
+
         stage('Build Docker Image') {
             steps {
-                echo 'Building the image'
+                echo 'Building Docker image'
                 sh 'docker build -t flask-project .'
             }
         }
+
         stage('Push to Docker Hub') {
             steps {
-                echo 'Pushing to Docker Hub'
+                echo 'Pushing Docker image to Docker Hub'
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-cred', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
                     sh '''
                     echo "${PASS}" | docker login --username "${USER}" --password-stdin
@@ -36,17 +41,22 @@ pipeline {
                 }
             }
         }
-        stage("TRIVY") {
+
+        stage('TRIVY') {
             steps {
-                sh "trivy image flask-project:latest"
+                echo 'Running TRIVY security scan'
+                sh 'trivy image flask-project:latest'
             }
         }
-        stage('Integrate Remote kubernetess with Jenkins') {
+
+        stage('Integrate Remote Kubernetes with Jenkins') {
             steps {
                 withCredentials([string(credentialsId: 'SECRET_TOKEN', variable: 'KUBE_TOKEN')]) {
                     sh '''
-                    curl -LO "https://storage.googleapis.com/kubernetes-release/release/v1.20.5/bin/linux/amd64/kubectl"
-                    chmod u+x ./kubectl
+                    if ! command -v kubectl &> /dev/null; then
+                        curl -LO "https://storage.googleapis.com/kubernetes-release/release/v1.20.5/bin/linux/amd64/kubectl"
+                        chmod +x kubectl
+                    fi
                     export KUBECONFIG=$(mktemp)
                     ./kubectl config set-cluster minikube --server=https://172.20.201.241:8443 --insecure-skip-tls-verify=true
                     ./kubectl config set-credentials jenkins --token=${KUBE_TOKEN}
